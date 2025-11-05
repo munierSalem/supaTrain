@@ -1,39 +1,65 @@
 'use client';
 
+import './ActivityTable.css';
 import { useActivities } from '@/hooks/useActivities';
+
+function formatDuration(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return [h, m, s]
+    .map(v => String(v).padStart(2, '0'))
+    .join(':');
+}
 
 export default function ActivityTable() {
   const { activities, loading, error } = useActivities();
 
   if (loading) return <p>Loading activities...</p>;
-  if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  if (error) return <p className="error">{error}</p>;
   if (!activities.length) return <p>No activities found.</p>;
 
+  let prevWeek: string | null = null;
+
   return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1.5rem' }}>
+    <table className="activity-table">
       <thead>
-        <tr style={{ textAlign: 'left', borderBottom: '2px solid #ddd' }}>
-          <th style={{ padding: '0.5rem' }}>Date</th>
-          <th style={{ padding: '0.5rem' }}>Sport</th>
-          <th style={{ padding: '0.5rem' }}>Distance (km)</th>
-          <th style={{ padding: '0.5rem' }}>Moving Time (min)</th>
+        <tr>
+          <th></th>
+          <th>Date</th>
+          <th>Sport</th>
+          <th>Moving Time</th>
+          <th>Distance (mi)</th>
         </tr>
       </thead>
       <tbody>
-        {activities.map((a) => (
-          <tr key={a.activity_id} style={{ borderBottom: '1px solid #eee' }}>
-            <td style={{ padding: '0.5rem' }}>
-              {new Date(a.start_date).toLocaleDateString()}
-            </td>
-            <td style={{ padding: '0.5rem' }}>{a.sport_type}</td>
-            <td style={{ padding: '0.5rem' }}>
-              {(a.distance / 1000).toFixed(1)}
-            </td>
-            <td style={{ padding: '0.5rem' }}>
-              {(a.moving_time / 60).toFixed(1)}
-            </td>
-          </tr>
-        ))}
+        {activities.map((a) => {
+          const isNewWeek = a.weekKey !== prevWeek;
+          prevWeek = a.weekKey;
+
+          return (
+            <tr
+              key={a.activity_id}
+              className={`activity-row ${isNewWeek ? 'new-week' : ''}`}
+              data-week={a.weekKey}
+            >
+              <td>
+                {new Date(a.start_date).toLocaleDateString(undefined, {
+                  weekday: 'short'
+                })}
+              </td>
+              <td>
+                {new Date(a.start_date).toLocaleDateString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </td>
+              <td>{a.sport_type}</td>
+              <td>{formatDuration(a.moving_time)}</td>
+              <td>{(a.distance / 1000 * 0.621371).toFixed(1)}</td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

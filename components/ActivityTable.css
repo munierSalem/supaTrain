@@ -1,0 +1,41 @@
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.activity-table th,
+.activity-table td {
+  padding: 0.25rem;
+  text-align: left;
+}
+
+.activity-table thead tr {
+  border-bottom: 2px solid #ccc;
+}
+
+.activity-row {
+  border-top: 1px solid #eee;
+  transition: background 0.15s ease;
+}
+
+.activity-row:hover {
+  background: #fafafa;
+}
+
+/* Highlight the start of a new week with a thicker line */
+.activity-row.new-week {
+  border-top: 3px solid #000;
+}
+
+/* Optional: subtle zebra striping for readability */
+.activity-row:nth-child(even) {
+  background: #4f46e525;
+}
+
+/* Error styling */
+.error {
+  color: red;
+  margin-top: 1rem;
+}
