@@ -26,10 +26,14 @@ export default function ActivityTable() {
       <thead>
         <tr>
           <th></th>
-          <th>Date</th>
-          <th>Sport</th>
+          <th className="border-right">Date</th>
+          <th className="border-right">Sport</th>
           <th>Moving Time</th>
-          <th>Distance (mi)</th>
+          <th>Dist (mi)</th>
+          <th>Vert (ft)</th>
+          <th  className="border-right">Max Elvt'n (ft)</th>
+          <th>Avg HR (bpm)</th>
+          <th>Max HR (bpm)</th>
         </tr>
       </thead>
       <tbody>
@@ -48,15 +52,19 @@ export default function ActivityTable() {
                   weekday: 'short'
                 })}
               </td>
-              <td>
+              <td className="border-right">
                 {new Date(a.start_date).toLocaleDateString(undefined, {
                   month: 'short',
                   day: 'numeric',
                 })}
               </td>
-              <td>{a.sport_type}</td>
+              <td className="border-right">{a.sport_type}</td>
               <td>{formatDuration(a.moving_time)}</td>
               <td>{(a.distance / 1000 * 0.621371).toFixed(1)}</td>
+              <td>{Math.round(a.total_elevation_gain * 3.28084).toLocaleString()}</td>
+              <td  className="border-right">{Math.round(a.elev_high * 3.28084).toLocaleString()}</td>
+              <td>{(a.has_heartrate ? a.average_heartrate.toFixed(0) : '')}</td>
+              <td>{(a.has_heartrate ? a.max_heartrate.toFixed(0) : '')}</td>
             </tr>
           );
         })}

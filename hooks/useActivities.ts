@@ -9,6 +9,11 @@ export interface Activity {
   sport_type: string;
   distance: number;
   moving_time: number;
+  total_elevation_gain: number;
+  elev_high: number;
+  has_heartrate: boolean;
+  average_heartrate: number;
+  max_heartrate: number;
   weekKey?: string; // e.g. "2025-W44"
 }
 
@@ -48,10 +53,10 @@ export function useActivities() {
 
       const { data, error } = await supabase
         .from('activities')
-        .select('activity_id, start_date, sport_type, distance, moving_time')
+        .select('activity_id, start_date, sport_type, distance, moving_time, total_elevation_gain, elev_high, has_heartrate, average_heartrate, max_heartrate')
         .eq('user_id', user.id)
         .order('start_date', { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (error) setError(error.message);
       else {

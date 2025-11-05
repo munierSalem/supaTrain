@@ -3,12 +3,19 @@
   border-collapse: collapse;
   margin-top: 1.5rem;
   font-size: 0.95rem;
+  border: 1px solid #000;
+}
+
+.activity-table th {
+  background: #4f46e5;
+  color: #fff;
 }
 
 .activity-table th,
 .activity-table td {
   padding: 0.25rem;
   text-align: left;
+  font-weight: normal;
 }
 
 .activity-table thead tr {
@@ -27,6 +34,15 @@
 /* Highlight the start of a new week with a thicker line */
 .activity-row.new-week {
   border-top: 3px solid #000;
+}
+
+.activity-row.new-week td {
+  padding-top: 1.0rem;
+}
+
+.activity-row .border-right,
+th.border-right {
+  border-right: 1px solid #000;
 }
 
 /* Optional: subtle zebra striping for readability */
