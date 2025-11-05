@@ -76,11 +76,8 @@ export default function Home() {
       {user && hasStrava === true && (
         <>
           <h2>Recent Activities</h2>
-          <ActivityTable />
-          <p style={{ marginTop: '2rem', color: 'green' }}>
-            ✅ Strava account connected!
-          </p>
           <button onClick={updateActivities}>Update Activities</button>
+          <ActivityTable />
         </>
       )}
     </>
