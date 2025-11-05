@@ -2,6 +2,7 @@
 
 import { getBrowserClient } from '@/lib/supabaseBrowser';
 import { useEffect, useState } from 'react';
+import ActivityTable from '@/components/ActivityTable';
 
 export default function Home() {
   const supabase = getBrowserClient();
@@ -60,26 +61,28 @@ export default function Home() {
   };
 
   return (
-    <main>
-      <h2>Welcome to supaTrain</h2>
-      <p>Your training data will appear here soon.</p>
-
+    <>
       {user && hasStrava === false && (
-        <div style={{ marginTop: '2rem' }}>
-          <h3>Connect your Strava account</h3>
-          <p>Authorize Strava so we can import your workouts automatically.</p>
-          <button onClick={connectStrava}>Connect Strava</button>
-        </div>
+        <>
+          <h2>Welcome to supaTrain</h2>
+          <div style={{ marginTop: '2rem' }}>
+            <h3>Connect your Strava account</h3>
+            <p>Authorize Strava so we can import your workouts automatically.</p>
+            <button onClick={connectStrava}>Connect Strava</button>
+          </div>
+        </>
       )}
 
       {user && hasStrava === true && (
         <>
+          <h2>Recent Activities</h2>
+          <ActivityTable />
           <p style={{ marginTop: '2rem', color: 'green' }}>
             ✅ Strava account connected!
           </p>
           <button onClick={updateActivities}>Update Activities</button>
         </>
       )}
-    </main>
+    </>
   );
 }
