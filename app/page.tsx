@@ -55,6 +55,10 @@ export default function Home() {
     window.location.href = url;
   };
 
+  const updateActivities = () => {
+    window.location.href = '/update';
+  };
+
   return (
     <main>
       <h2>Welcome to supaTrain</h2>
@@ -69,9 +73,12 @@ export default function Home() {
       )}
 
       {user && hasStrava === true && (
-        <p style={{ marginTop: '2rem', color: 'green' }}>
-          ✅ Strava account connected!
-        </p>
+        <>
+          <p style={{ marginTop: '2rem', color: 'green' }}>
+            ✅ Strava account connected!
+          </p>
+          <button onClick={updateActivities}>Update Activities</button>
+        </>
       )}
     </main>
   );

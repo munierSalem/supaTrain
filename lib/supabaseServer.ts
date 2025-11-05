@@ -1,10 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export function getServerClient() {
-  const cookieStore = cookies();
+export async function getServerClient() {
+  const cookieStore = await cookies(); // ✅ ensure it's awaited here
 
-  // check which API shape is available (older vs newer Next)
   const hasGetAll = typeof (cookieStore as any).getAll === 'function';
 
   return createServerClient(
@@ -22,15 +21,16 @@ export function getServerClient() {
           }
         : {
             // fallback for older cookie API
-            getAll: () => {
-              const single = (cookieStore as any).get
-                ? [(cookieStore as any).get() ?? {}]
+            getAll: async () => {
+              const single = (await cookieStore).get
+                ? [((await cookieStore) as any).get() ?? {}]
                 : [];
               return single;
             },
-            setAll: (cookiesToSet: any[]) => {
+            setAll: async (cookiesToSet: any[]) => {
+              const store = await cookieStore;
               cookiesToSet.forEach(({ name, value, options }) => {
-                (cookieStore as any).set(name, value, options);
+                (store as any).set(name, value, options);
               });
             },
           },
