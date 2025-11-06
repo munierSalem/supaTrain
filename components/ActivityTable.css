@@ -1,4 +1,4 @@
-.activity-table {
+.stats-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1.5rem;
@@ -6,19 +6,19 @@
   border: 1px solid #000;
 }
 
-.activity-table th {
+.stats-table th {
   background: #4f46e5;
   color: #fff;
 }
 
-.activity-table th,
-.activity-table td {
+.stats-table th,
+.stats-table td {
   padding: 0.25rem;
   text-align: left;
   font-weight: normal;
 }
 
-.activity-table thead tr {
+.stats-table thead tr {
   border-bottom: 2px solid #ccc;
 }
 
@@ -46,7 +46,7 @@ th.border-right {
 }
 
 /* Optional: subtle zebra striping for readability */
-.activity-row:nth-child(even) {
+.stats-table tr:nth-child(even) {
   background: #4f46e525;
 }
 

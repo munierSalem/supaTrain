@@ -22,7 +22,7 @@ export default function ActivityTable() {
   let prevWeek: string | null = null;
 
   return (
-    <table className="activity-table">
+    <table className="stats-table activity-table">
       <thead>
         <tr>
           <th></th>

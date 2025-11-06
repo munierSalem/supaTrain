@@ -3,6 +3,7 @@
 import { getBrowserClient } from '@/lib/supabaseBrowser';
 import { useEffect, useState } from 'react';
 import ActivityTable from '@/components/ActivityTable';
+import WeeklyAggregatesTable from '@/components/WeeklyAggregatesTable';
 
 export default function Home() {
   const supabase = getBrowserClient();
@@ -77,6 +78,7 @@ export default function Home() {
         <>
           <h2>Recent Activities</h2>
           <button onClick={updateActivities}>Update Activities</button>
+          <WeeklyAggregatesTable />
           <ActivityTable />
         </>
       )}

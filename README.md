@@ -146,3 +146,40 @@ create policy "Users can manage their own connections"
   with check (auth.uid() = user_id);
 ```
 
+
+## Weekly View
+
+```
+-- Weekly totals per user (Mon–Sun, UTC-based)
+create or replace view weekly_aggregates
+with (security_invoker = true) as
+select
+  user_id,
+  (date_trunc('week', start_date) + interval '1 day')::date              as week_start,     -- Monday (UTC)
+  (date_trunc('week', start_date) + interval '7 day')::date as week_end,  -- Sunday (UTC)
+  to_char(date_trunc('week', start_date), 'IYYY-"W"IW')      as iso_week, -- e.g. 2025-W45
+  count(*)                                          as activities,
+  coalesce(sum(distance), 0)::bigint               as distance,
+  coalesce(sum(moving_time), 0)::bigint            as moving_time,
+  coalesce(sum(elapsed_time),0)::bigint            as elapsed_time,
+  coalesce(sum(total_elevation_gain), 0)::bigint   as total_elevation_gain,
+
+  -- time-weighted average HR across activities
+  case
+    when sum(elapsed_time) > 0 then
+      round(
+        sum(coalesce(average_heartrate,0) * coalesce(elapsed_time,0))::numeric
+        / nullif(sum(elapsed_time), 0),
+        1
+      )
+    else null
+  end as average_heartrate,
+
+  -- max HR across activities
+  max(nullif(max_heartrate,0)) as max_heartrate
+
+from activities
+group by user_id, date_trunc('week', start_date)
+order by user_id, week_start desc;
+
+```
