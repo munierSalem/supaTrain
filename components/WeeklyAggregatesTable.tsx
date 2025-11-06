@@ -31,7 +31,6 @@ export default function WeeklyAggregatesTable() {
           <th>Dist (mi)</th>
           <th>Vert (ft)</th>
           <th>Avg HR</th>
-          <th>Max HR</th>
         </tr>
       </thead>
       <tbody>
@@ -39,15 +38,12 @@ export default function WeeklyAggregatesTable() {
           <tr key={w.week_start}>
             <td>
               {new Date(w.week_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              {' – '}
-              {new Date(w.week_end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </td>
             <td>{w.activities}</td>
             <td>{formatTime(w.moving_time)}</td>
             <td>{(w.distance / 1609.34).toFixed(1)}</td>
             <td>{formatNumber(Math.round(w.total_elevation_gain * 3.28084))}</td>
             <td>{Math.round(w.average_heartrate) ?? '–'}</td>
-            <td>{w.max_heartrate ?? '–'}</td>
           </tr>
         ))}
       </tbody>
