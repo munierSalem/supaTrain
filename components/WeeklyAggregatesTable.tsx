@@ -46,7 +46,7 @@ export default function WeeklyAggregatesTable() {
             <td>{formatTime(w.moving_time)}</td>
             <td>{(w.distance / 1609.34).toFixed(1)}</td>
             <td>{formatNumber(Math.round(w.total_elevation_gain * 3.28084))}</td>
-            <td>{w.average_heartrate ?? '–'}</td>
+            <td>{Math.round(w.average_heartrate) ?? '–'}</td>
             <td>{w.max_heartrate ?? '–'}</td>
           </tr>
         ))}
