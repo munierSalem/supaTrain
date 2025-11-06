@@ -36,6 +36,14 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 
+## Config
+
+Installed Packages:
+
+```
+npm install react-hook-form zod @hookform/resolvers
+```
+
 
 ## Activity Table
 ```
@@ -164,14 +172,26 @@ select
   coalesce(sum(elapsed_time),0)::bigint            as elapsed_time,
   coalesce(sum(total_elevation_gain), 0)::bigint   as total_elevation_gain,
 
-  -- time-weighted average HR across activities
+  -- time-weighted average HR across activities, excluding rows without HR
   case
-    when sum(elapsed_time) > 0 then
-      round(
-        sum(coalesce(average_heartrate,0) * coalesce(elapsed_time,0))::numeric
-        / nullif(sum(elapsed_time), 0),
-        1
-      )
+    when
+      coalesce(
+        sum(elapsed_time) filter (where average_heartrate is not null and average_heartrate > 0),
+        0
+      ) > 0
+    then round(
+      (
+        sum(average_heartrate * elapsed_time)
+          filter (where average_heartrate is not null and average_heartrate > 0)
+      )::numeric
+      /
+      nullif(
+        sum(elapsed_time)
+          filter (where average_heartrate is not null and average_heartrate > 0),
+        0
+      ),
+      1
+    )
     else null
   end as average_heartrate,
 
