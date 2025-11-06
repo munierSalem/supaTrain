@@ -40,9 +40,9 @@ export default function AddActivityForm() {
 
       name: data.name,
       sport_type: data.sport_type,
-      distance: data.distance,
+      distance: data.distance * 1609.34,  // miles to meters
       moving_time: data.moving_time,
-      total_elevation_gain: data.total_elevation_gain,
+      total_elevation_gain: data.total_elevation_gain * 0.3048,  // feet to meters
 
       has_heartrate: false, // assume not present for manual entries
 
@@ -71,12 +71,20 @@ export default function AddActivityForm() {
 
       <label>
         Sport type
-        <input type="text" {...register('sport_type')} />
+        <select {...register('sport_type')}>
+          <option value="">Select a sport</option>
+          <option value="RockClimbing">Rock Climbing</option>
+          <option value="Run">Run</option>
+          <option value="Hike">Hike</option>
+          <option value="Walk">Walk</option>
+          <option value="Swim">Swim</option>
+          <option value="AlpineSki">Alpine Ski</option>
+        </select>
         {errors.sport_type && <span>{errors.sport_type.message}</span>}
       </label>
 
       <label>
-        Distance (m)
+        Distance (miles)
         <input
           type="number"
           step="any"
@@ -96,7 +104,7 @@ export default function AddActivityForm() {
       </label>
 
       <label>
-        Elevation gain (m)
+        Elevation gain (feet)
         <input
           type="number"
           step="any"
