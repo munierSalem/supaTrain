@@ -26,3 +26,14 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+.activity-form .duration-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.activity-form .duration-inputs input {
+  width: 3rem;
+  text-align: right;
+}
