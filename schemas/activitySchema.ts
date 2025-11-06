@@ -9,6 +9,11 @@ export const activitySchema = z.object({
   moving_time: z.number().nonnegative(),
   total_elevation_gain: z.number().nonnegative(),
   has_heartrate: z.boolean().default(false),
+
+  // client side helpers
+  moving_time__hours: z.number().min(0).default(0),
+  moving_time__minutes: z.number().min(0).max(59).default(0),
+  moving_time__seconds: z.number().min(0).max(59).default(0),
 });
 
 export type ActivityForm = z.infer<typeof activitySchema>;
