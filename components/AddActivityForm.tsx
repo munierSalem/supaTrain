@@ -73,12 +73,12 @@ export default function AddActivityForm() {
         Sport type
         <select {...register('sport_type')}>
           <option value="">Select a sport</option>
+          <option value="AlpineSki">Alpine Ski</option>
+          <option value="Hike">Hike / Snowshoe</option>
           <option value="RockClimbing">Rock Climbing</option>
           <option value="Run">Run</option>
-          <option value="Hike">Hike</option>
-          <option value="Walk">Walk</option>
           <option value="Swim">Swim</option>
-          <option value="AlpineSki">Alpine Ski</option>
+          <option value="Walk">Walk</option>
         </select>
         {errors.sport_type && <span>{errors.sport_type.message}</span>}
       </label>
