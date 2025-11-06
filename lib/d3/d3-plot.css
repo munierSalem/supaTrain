@@ -26,6 +26,7 @@
   pointer-events: none;
   opacity: 0;
   font-weight: normal;
+  color: #000;
 }
 
 .d3-plot-container .tooltip h3 {
@@ -33,6 +34,10 @@
   padding: 0;
   padding-bottom: 5px;
   color: #cc2c00;
+}
+
+.d3-plot-container .tooltip strong {
+  color: #444;
 }
 
 .d3-plot-container .filters {

@@ -1,0 +1,41 @@
+.weekly-aggregates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .weekly-aggregates {
+    grid-template-columns: 1fr; /* stack on small screens */
+  }
+}
+
+.weekly-aggregates__chart,
+.weekly-aggregates__table {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+  /*padding: 0.75rem 1rem;*/
+}
+
+.weekly-aggregates__chart .bar:hover {
+  fill: #cc2c00;
+}
+
+/* table polish */
+.weekly-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+/*.weekly-table th,
+.weekly-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+}
+.weekly-table thead tr { border-bottom: 2px solid #444; color: #111; }
+.weekly-table tbody tr { border-top: 1px solid #e5e7eb; }
+.weekly-table tbody tr:hover { background: #fafafa; }
+*/
