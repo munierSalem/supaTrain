@@ -86,6 +86,7 @@ export default function AddActivityForm() {
           <option value="Run">Run</option>
           <option value="Swim">Swim</option>
           <option value="Walk">Walk</option>
+          <option value="Other">Other</option>
         </select>
         {errors.sport_type && <span>{errors.sport_type.message}</span>}
       </label>

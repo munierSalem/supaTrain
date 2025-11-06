@@ -61,6 +61,10 @@ export default function Home() {
     window.location.href = '/update';
   };
 
+  const addActivity = () => {
+    window.location.href = '/add';
+  };
+
   return (
     <>
       {user && hasStrava === false && (
@@ -78,6 +82,9 @@ export default function Home() {
         <>
           <h2>Recent Activities</h2>
           <button onClick={updateActivities}>Update Activities</button>
+          <button onClick={addActivity} style={{ marginLeft: '1rem' }}>
+            Add Manual Activity
+          </button>
           <WeeklyAggregatesTable />
           <ActivityTable />
         </>
