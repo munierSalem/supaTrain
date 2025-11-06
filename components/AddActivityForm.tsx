@@ -2,12 +2,14 @@
 
 import './AddActivityForm.css';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { activitySchema, ActivityForm } from '@/schemas/activitySchema';
 import { getBrowserClient } from '@/lib/supabaseBrowser';
 import { DateTime } from 'luxon';
 
 export default function AddActivityForm() {
+  const router = useRouter();
   const supabase = getBrowserClient();
 
   const {
@@ -62,8 +64,7 @@ export default function AddActivityForm() {
     if (error) {
       alert('Error saving activity: ' + error.message);
     } else {
-      alert('Activity added!');
-      reset();
+      router.push('/');
     }
   };
 
