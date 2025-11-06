@@ -6,7 +6,6 @@ export const activitySchema = z.object({
   timezone: z.string().min(1).default('America/Denver'),
   sport_type: z.string().min(1),
   distance: z.number().nonnegative(),
-  moving_time: z.number().nonnegative(),
   total_elevation_gain: z.number().nonnegative(),
   has_heartrate: z.boolean().default(false),
 
