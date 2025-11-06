@@ -42,6 +42,7 @@ Installed Packages:
 
 ```
 npm install react-hook-form zod @hookform/resolvers
+npm i luxon
 ```
 
 
@@ -126,6 +127,11 @@ using (auth.uid() = user_id);
 create policy "users can insert own activities"
 on public.activities for insert
 with check (auth.uid() = user_id);
+
+
+alter table activities
+  alter column source set default 'manual',
+  alter column created_at set default now();
 ```
 
 
