@@ -34,6 +34,12 @@ export default function AddActivityForm() {
     const start_date_local_iso = dtLocal.toISO();        // keeps zone info; fine for timestamptz
     const utc_offset = dtLocal.offset * 60;              // Luxon gives minutes; DB expects seconds
 
+    // convert moving_time to seconds
+    const hours = data.moving_time__hours ?? 0;
+    const minutes = data.moving_time__minutes ?? 0;
+    const seconds = data.moving_time__seconds ?? 0;
+    const moving_time = hours * 3600 + minutes * 60 + seconds;
+
     const { error } = await supabase.from('activities').insert({
       user_id: user.id,
       source: 'manual',
@@ -41,7 +47,7 @@ export default function AddActivityForm() {
       name: data.name,
       sport_type: data.sport_type,
       distance: data.distance * 1609.34,  // miles to meters
-      moving_time: data.moving_time,
+      moving_time,
       total_elevation_gain: data.total_elevation_gain * 0.3048,  // feet to meters
 
       has_heartrate: false, // assume not present for manual entries
@@ -94,12 +100,34 @@ export default function AddActivityForm() {
       </label>
 
       <label>
-        Moving time (sec)
-        <input
-          type="number"
-          step="1"
-          {...register('moving_time', { valueAsNumber: true })}
-        />
+        Moving time (hh:mm:ss)
+        <div className="duration-inputs">
+          <input
+            type="number"
+            min="0"
+            defaultValue={0}
+            placeholder="hh"
+            {...register('moving_time__hours', { valueAsNumber: true })}
+          />
+          :
+          <input
+            type="number"
+            min="0"
+            max="59"
+            defaultValue={0}
+            placeholder="mm"
+            {...register('moving_time__minutes', { valueAsNumber: true })}
+          />
+          :
+          <input
+            type="number"
+            min="0"
+            max="59"
+            defaultValue={0}
+            placeholder="ss"
+            {...register('moving_time__seconds', { valueAsNumber: true })}
+          />
+        </div>
         {errors.moving_time && <span>{errors.moving_time.message}</span>}
       </label>
 
