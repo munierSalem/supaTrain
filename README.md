@@ -226,20 +226,20 @@ It’s organized by **time horizon** — what should be done immediately, soon, 
 
 ### ✅ Immediate (Do Now)
 
-- [ ] **Rotate the Supabase service-role key** if it was ever exposed (pasted in terminals, logs, or committed).
+- [X] **Rotate the Supabase service-role key** if it was ever exposed (pasted in terminals, logs, or committed).
   - This key bypasses RLS and has full DB privileges.
 - [ ] **Verify RLS (Row-Level Security).**
   - Log in as two test users (A & B). Ensure A cannot read B’s `activities`, `user_connections`, or profile rows.
-- [ ] **Keep Strava tokens server-only.**
+- [X] **Keep Strava tokens server-only.**
   - Never send `access_token`/`refresh_token` to the browser; never store them in `NEXT_PUBLIC_*`.
 - [ ] **Harden session cookies.**
   - `HttpOnly`, `Secure`, `SameSite=Strict`, short lifetimes.
 - [ ] **Limit Strava OAuth scopes** to the minimum (e.g., `read`, `activity:read_all` only if required).
 - [ ] **Audit views and functions** to ensure they respect RLS.
   - Use `CREATE VIEW ... WITH (security_invoker = true)` where appropriate.
-- [ ] **Check environment variables.**
+- [X] **Check environment variables.**
   - Secrets only in server env; nothing sensitive in `NEXT_PUBLIC_*`.
-- [ ] **.env files are git-ignored** and not printed to logs.
+- [X] **.env files are git-ignored** and not printed to logs.
 
 ---
 
