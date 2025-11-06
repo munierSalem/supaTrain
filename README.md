@@ -216,3 +216,74 @@ order by user_id, week_start desc;
 
 
 ```
+
+## 🛡️ Security Hardening Checklist
+
+This checklist summarizes how to keep the Supabase + Next.js + Strava integration secure.  
+It’s organized by **time horizon** — what should be done immediately, soon, and long term.
+
+---
+
+### ✅ Immediate (Do Now)
+
+- [ ] **Rotate the Supabase service-role key** if it was ever exposed (pasted in terminals, logs, or committed).
+  - This key bypasses RLS and has full DB privileges.
+- [ ] **Verify RLS (Row-Level Security).**
+  - Log in as two test users (A & B). Ensure A cannot read B’s `activities`, `user_connections`, or profile rows.
+- [ ] **Keep Strava tokens server-only.**
+  - Never send `access_token`/`refresh_token` to the browser; never store them in `NEXT_PUBLIC_*`.
+- [ ] **Harden session cookies.**
+  - `HttpOnly`, `Secure`, `SameSite=Strict`, short lifetimes.
+- [ ] **Limit Strava OAuth scopes** to the minimum (e.g., `read`, `activity:read_all` only if required).
+- [ ] **Audit views and functions** to ensure they respect RLS.
+  - Use `CREATE VIEW ... WITH (security_invoker = true)` where appropriate.
+- [ ] **Check environment variables.**
+  - Secrets only in server env; nothing sensitive in `NEXT_PUBLIC_*`.
+- [ ] **.env files are git-ignored** and not printed to logs.
+
+---
+
+### ⏳ Short Term (1–2 Weeks)
+
+- [ ] **Encrypt sensitive columns** (e.g., Strava `refresh_token`) using `pgcrypto` or a server function.
+- [ ] **Add CI tests for RLS** (anon client + different user should see 0 rows).
+- [ ] **Monitor & alert** on queries run with the service role (unusually large reads/exports).
+- [ ] **Review backups & logs** to confirm encryption and restricted access.
+- [ ] **Restrict Supabase console access** (least privilege; MFA enabled).
+- [ ] **Sanitize all user input** and avoid rendering unsanitized HTML.
+- [ ] **Rate-limit** endpoints that read/write activities.
+
+---
+
+### 🧭 Medium Term (1–3 Months)
+
+- [ ] **Token hygiene & rotation.**
+  - Prefer using refresh tokens server-side; rotate on schedule or suspicious use.
+- [ ] **Audit trails** on sensitive tables (`user_connections`, `activities`).
+  - Store `inserted_by`, timestamps, optional request metadata.
+- [ ] **Secret management** via your host’s secret manager (Vercel/Netlify/AWS/GCP).
+- [ ] **Automated security tests** (Playwright/Cypress/Jest) for:
+  - Unauthenticated access blocked
+  - Cross-user reads blocked by RLS
+- [ ] **Content-Security Policy (CSP)** to mitigate XSS and cookie theft.
+
+---
+
+### 🧱 Long Term (3+ Months)
+
+- [ ] **Column-level encryption or token vaulting** (KMS-backed).
+- [ ] **Field-level redaction** for highly sensitive data (e.g., raw GPS coordinates).
+- [ ] **Regular key rotation** (service role, Strava client secret) on a cadence.
+- [ ] **Least-privilege DB roles** (separate read-only/admin paths).
+- [ ] **External pen-test or security review** before/after public launch.
+- [ ] **Anomaly detection & alerts** (unexpected IPs, bursts of failures, unusual query volume).
+
+---
+
+### 🔎 Quick Sanity Checks
+
+- [ ] `grep -R "SERVICE_ROLE" .` → appears **only** in server code.
+- [ ] Cross-user read from the browser returns 0 rows.
+- [ ] Cookies are `HttpOnly` and `Secure`.
+- [ ] `.env*` files are not committed; CI logs don’t echo secrets.
+- [ ] Backups exist, are encrypted, and are access-controlled.
