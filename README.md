@@ -43,6 +43,7 @@ Installed Packages:
 ```
 npm install react-hook-form zod @hookform/resolvers
 npm i luxon
+npm install d3
 ```
 
 

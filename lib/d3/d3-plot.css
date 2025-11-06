@@ -1,0 +1,88 @@
+.d3-plot-container {
+  font-family: "Lucida Console", Monaco, monospace, courier, "courier new", sans-serif;
+}
+
+.d3-plot-container .d3-plot .tick {
+  font-size: 12px;
+  font-family: "Lucida Console", Monaco, monospace, courier, "courier new", sans-serif;
+}
+
+.d3-plot-container .d3-plot .tick line {
+  color: #E8E8E8;
+}
+
+.d3-plot-container .d3-plot .axis-label {
+  font-size: 14px;
+  font-weight: bold;
+  fill: #cc2c00;
+}
+
+.d3-plot-container .tooltip {
+  position: absolute;
+  background: white;
+  border: 1px solid #aaa;
+  padding: 8px;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  font-weight: normal;
+}
+
+.d3-plot-container .tooltip h3 {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 5px;
+  color: #cc2c00;
+}
+
+.d3-plot-container .filters {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.d3-plot-container .filter-btn {
+  display: inline-block;
+  color: var(--btn-color);
+  margin: 2px 5px;
+  padding: 4px 8px;
+  border: 2px solid var(--btn-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #F8F8F8;
+  transition: all 0.2s ease;
+}
+
+.d3-plot-container .filter-btn:hover {
+  background-color: var(--btn-color);   /* fallback for old browsers */
+  background: var(--btn-color);
+  color: white;
+  cursor: pointer;
+}
+
+.d3-plot-container .filter-btn.active {
+  background-color: var(--btn-color);   /* fallback for old browsers */
+  background-color: color-mix(in srgb, var(--btn-color) 70%, transparent);
+  color: white;
+}
+
+.d3-plot-container .filter-btn.active:hover {
+  background-color: var(--btn-color);
+}
+
+.d3-plot-container .d3-plot .scatter-point {
+  fill-opacity: 0.5;
+}
+
+.d3-plot-container .d3-plot .scatter-point:hover {
+  fill-opacity: 1.0;
+  stroke-width: 3px;
+}
+
+
+.d3-plot-container .d3-plot .bar {
+  stroke: none;
+}
