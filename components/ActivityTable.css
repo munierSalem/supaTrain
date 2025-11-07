@@ -30,6 +30,9 @@
 .stats-table .activity-row:hover {
   background: #cc2c00;
   color: #fff;
+}
+
+.stats-table .clickable:hover {
   cursor: pointer;
 }
 

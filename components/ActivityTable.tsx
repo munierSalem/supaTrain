@@ -39,14 +39,19 @@ export default function ActivityTable() {
       <tbody>
         {activities.map((a) => {
           const isNewWeek = a.weekKey !== prevWeek;
+          const isClickable = ['strava'].includes(a.source);
           prevWeek = a.weekKey;
 
           return (
             <tr
               key={a.activity_id}
-              className={`activity-row ${isNewWeek ? 'new-week' : ''}`}
+              className={`activity-row ${isNewWeek ? 'new-week' : ''} ${isClickable ? 'clickable' : ''}`}
               data-week={a.weekKey}
-              onClick={() => window.open(`https://www.strava.com/activities/${a.activity_id}`, '_blank')}
+              onClick={
+                a.source === 'strava'
+                  ? () => window.open(`https://www.strava.com/activities/${a.activity_id}`, '_blank', 'noopener,noreferrer')
+                  : undefined
+              }
             >
               <td>
                 {new Date(a.start_date).toLocaleDateString(undefined, {

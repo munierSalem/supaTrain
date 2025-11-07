@@ -7,6 +7,7 @@ export interface Activity {
   activity_id: number;
   start_date: string;
   sport_type: string;
+  source: string;
   distance: number;
   moving_time: number;
   total_elevation_gain: number;
@@ -53,7 +54,7 @@ export function useActivities() {
 
       const { data, error } = await supabase
         .from('activities')
-        .select('activity_id, start_date, sport_type, distance, moving_time, total_elevation_gain, elev_high, has_heartrate, average_heartrate, max_heartrate')
+        .select('activity_id, start_date, sport_type, source, distance, moving_time, total_elevation_gain, elev_high, has_heartrate, average_heartrate, max_heartrate')
         .eq('user_id', user.id)
         .order('start_date', { ascending: false })
         .limit(50);
