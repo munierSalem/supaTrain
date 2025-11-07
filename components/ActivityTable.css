@@ -1,14 +1,22 @@
+.activityTableContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 1.5rem;
+}
+
 .stats-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1.5rem;
   font-size: 0.95rem;
   border: 1px solid #000;
 }
 
-.stats-table th {
+.stats-table thead {
   background: #4f46e5;
   color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .stats-table th,
@@ -18,8 +26,8 @@
   font-weight: normal;
 }
 
-.stats-table thead tr {
-  border-bottom: 2px solid #ccc;
+.stats-table .superheader th {
+  text-align: center;
 }
 
 .activity-row {
