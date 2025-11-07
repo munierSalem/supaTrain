@@ -46,6 +46,7 @@ export default function ActivityTable() {
               key={a.activity_id}
               className={`activity-row ${isNewWeek ? 'new-week' : ''}`}
               data-week={a.weekKey}
+              onClick={() => window.open(`https://www.strava.com/activities/${a.activity_id}`, '_blank')}
             >
               <td>
                 {new Date(a.start_date).toLocaleDateString(undefined, {
