@@ -47,7 +47,9 @@
   transition: background 0.15s ease;
 }
 
-.stats-table .activity-row:hover {
+.stats-table .activity-row:hover,
+.stats-table .week-row:hover
+ {
   background: #cc2c00;
   color: #fff;
 }

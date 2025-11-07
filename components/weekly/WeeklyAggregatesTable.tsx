@@ -30,7 +30,7 @@ export default function WeeklyAggregatesTable({ data }: Props) {
         </thead>
         <tbody>
           {data.map((w) => (
-            <tr key={w.week_start}>
+            <tr key={w.week_start} className="week-row">
               <td>{new Date(w.week_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
               <td>{w.activities}</td>
               <td>{formatTime(w.moving_time)}</td>
