@@ -25,12 +25,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ margin: 0 }}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Header />
-        <main style={{ padding: 24 }}>{children}</main>
+        <main>{children}</main>
       </body>
     </html>
   );
