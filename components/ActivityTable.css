@@ -2,13 +2,25 @@
   max-height: 400px;
   overflow-y: auto;
   margin-top: 1.5rem;
+  border: 1px solid #000;
+}
+
+.weekly-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #000;
+}
+
+.activityTableContainer {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 1.5rem;
 }
 
 .stats-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
-  border: 1px solid #000;
 }
 
 .stats-table thead {
