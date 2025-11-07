@@ -133,6 +133,12 @@ with check (auth.uid() = user_id);
 alter table activities
   alter column source set default 'manual',
   alter column created_at set default now();
+
+create policy "Users can manage own activities"
+  on activities
+  for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
 ```
 
 
