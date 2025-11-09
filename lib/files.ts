@@ -6,11 +6,11 @@ import path from "path";
  * Creates intermediate folders if missing.
  */
 export async function saveGpxFile(userId: string, activityId: number, gpxContents: string) {
-  const baseDir = path.join(process.cwd(), "data", "gpx", userId);
-  await fs.mkdir(baseDir, { recursive: true });
-  const filePath = path.join(baseDir, `${activityId}.gpx`);
-  await fs.writeFile(filePath, gpxContents, "utf8");
-  return filePath;
+  const relPath = path.join("data", "gpx", userId, `${activityId}.gpx`);
+  const absPath = path.join(process.cwd(), relPath);
+  await fs.mkdir(path.dirname(absPath), { recursive: true });
+  await fs.writeFile(absPath, gpxContents);
+  return relPath; // store this one in DB
 }
 
 /**
