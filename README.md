@@ -223,6 +223,117 @@ order by user_id, week_start desc;
 
 ```
 
+## Activity Data
+
+Tracks if activity GPX has been downloaded and will, eventually, also include columns for derived metrics on activities
+
+```
+-- 1) Table
+create table if not exists public.activity_data (
+  activity_id        bigint primary key
+                     references public.activities(activity_id) on delete cascade,
+  user_id            uuid not null
+                     references auth.users(id) on delete cascade,
+  source             text not null,   -- e.g. 'strava', 'garmin'
+  gpx_path           text not null,   -- local or S3/Supabase Storage path
+  gpx_downloaded_at  timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+
+  checksum_sha256    text
+    constraint activity_data_checksum_hex_chk
+    check (
+      checksum_sha256 is null
+      or checksum_sha256 ~ '^[0-9a-f]{64}$'
+    ),
+
+  constraint activity_data_source_chk
+  check (length(source) between 1 and 64)
+);
+
+comment on table  public.activity_data is
+'Per-activity file pointer + bookkeeping for GPX downloads (1:1 with activities).';
+comment on column public.activity_data.gpx_path is
+'Filesystem path or object-storage URL to the GPX file.';
+comment on column public.activity_data.checksum_sha256 is
+'SHA-256 (hex) of GPX file contents; set by app when saving file.';
+
+-- Optional helpful index for frequent lookups
+create index if not exists activity_data_user_id_idx
+  on public.activity_data (user_id);
+create index if not exists activity_data_gpx_downloaded_at_idx
+  on public.activity_data (gpx_downloaded_at desc);
+
+-- Ensure data integrity: each row’s user_id must match the parent activity’s user_id
+create or replace function public.enforce_activity_user_match()
+returns trigger language plpgsql as $$
+declare
+  expected_user uuid;
+begin
+  select a.user_id into expected_user
+  from public.activities a
+  where a.activity_id = new.activity_id;
+
+  if expected_user is null then
+    raise exception 'Activity % does not exist', new.activity_id;
+  end if;
+
+  if new.user_id != expected_user then
+    raise exception 'activity_data.user_id must match activities.user_id';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_activity_user_match on public.activity_data;
+create trigger trg_activity_user_match
+before insert or update on public.activity_data
+for each row execute function public.enforce_activity_user_match();
+
+-- Auto-bump updated_at
+create or replace function public.touch_updated_at()
+returns trigger language plpgsql as $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_activity_data_touch on public.activity_data;
+create trigger trg_activity_data_touch
+before update on public.activity_data
+for each row execute function public.touch_updated_at();
+
+-- 2) Row Level Security (RLS)
+alter table public.activity_data enable row level security;
+
+drop policy if exists activity_data_select on public.activity_data;
+create policy activity_data_select
+on public.activity_data
+for select
+using (user_id = auth.uid());
+
+drop policy if exists activity_data_insert on public.activity_data;
+create policy activity_data_insert
+on public.activity_data
+for insert
+with check (user_id = auth.uid());
+
+drop policy if exists activity_data_update on public.activity_data;
+create policy activity_data_update
+on public.activity_data
+for update
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
+
+drop policy if exists activity_data_delete on public.activity_data;
+create policy activity_data_delete
+on public.activity_data
+for delete
+using (user_id = auth.uid());
+```
+
+
 ## 🛡️ Security Hardening Checklist
 
 This checklist summarizes how to keep the Supabase + Next.js + Strava integration secure.  
