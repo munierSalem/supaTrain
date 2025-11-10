@@ -58,7 +58,7 @@ export default function Home() {
   };
 
   const updateActivities = () => {
-    window.location.href = '/update';
+    window.location.href = '/activities/update';
   };
 
   const addActivity = () => {
