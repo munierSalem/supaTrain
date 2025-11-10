@@ -10,7 +10,9 @@ export async function GET(req: Request) {
   const { data, error } = await supabase
     .from("missing_gpx")
     .select("activity_id")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .eq("sport_type", "Hike") // FIXME
+    .limit(5); // FIXME
 
   if (error) {
     console.error(error);

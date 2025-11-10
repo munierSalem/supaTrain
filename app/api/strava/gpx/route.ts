@@ -29,6 +29,8 @@ export async function GET(req: Request) {
     }
 
     const gpxContents = await resp.text();
+    console.log("GPX length:", gpxContents.length);  // FIXME 
+    console.log("GPX snippet:", gpxContents.slice(0, 200));  // FIXME
 
     // 2️⃣ Compute checksum
     const checksum = crypto.createHash("sha256").update(gpxContents).digest("hex");
