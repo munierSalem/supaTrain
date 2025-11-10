@@ -12,7 +12,7 @@ export default function UpdateActivitiesPage() {
     async function runSync() {
       setStatus("loading");
       try {
-        const res = await fetch("/api/strava-sync");
+        const res = await fetch("/api/strava/metadata");
         const data = await res.json();
 
         if (res.ok) {
