@@ -6,33 +6,50 @@ import { useRouter } from "next/navigation";
 export default function UpdateActivitiesPage() {
   const router = useRouter();
   const [activityResult, setActivityResult] = useState<{ updated?: number; error?: string } | null>(null);
-  const [missingGpx, setMissingGpx] = useState<number[] | null>(null);
+  const [missingGpx, setMissingGpx] = useState<number[]>([]);
+  const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  const [phase, setPhase] = useState<"metadata" | "gpx" | "done" | "error">("metadata");
 
   useEffect(() => {
     async function runFullSync() {
       setLoading(true);
-
-      // 1️⃣ Step 1: Sync metadata
       try {
-        const res = await fetch("/api/strava/metadata");
-        const data = await res.json();
-        setActivityResult(data);
-      } catch (err: any) {
-        setActivityResult({ error: err.message });
-        setLoading(false);
-        return;
-      }
+        // 1️⃣ Metadata sync
+        const metaRes = await fetch("/api/strava/metadata");
+        const metaData = await metaRes.json();
+        setActivityResult(metaData);
+        if (!metaRes.ok) throw new Error(metaData.error || "Metadata sync failed");
 
-      // 2️⃣ Step 2: Fetch missing GPX list
-      try {
-        const res = await fetch("/api/strava/missing-gpx");
-        const data = await res.json();
-        if (res.ok) setMissingGpx(data.missing || []);
-        else throw new Error(data.error || "Failed to check GPX");
-      } catch (err: any) {
+        // 2️⃣ Fetch missing GPX
+        setPhase("gpx");
+        const missRes = await fetch("/api/strava/missing-gpx");
+        const missData = await missRes.json();
+        if (!missRes.ok) throw new Error(missData.error || "Missing GPX fetch failed");
+        setMissingGpx(missData.missing || []);
+
+        // 3️⃣ Loop through GPX downloads
+        const total = missData.missing?.length ?? 0;
+        if (total > 0) {
+          let count = 0;
+          for (const id of missData.missing) {
+            try {
+              await fetch(`/api/strava/gpx?id=${id}`);
+              count++;
+              setProgress(count);
+            } catch (err) {
+              console.error("GPX download failed for", id, err);
+            }
+          }
+        }
+
+        setPhase("done");
+        // small delay to let user see "done" message
+        setTimeout(() => router.push("/"), 1500);
+      } catch (err) {
         console.error(err);
-        setMissingGpx([]);
+        setPhase("error");
+        setTimeout(() => router.push("/"), 2500);
       } finally {
         setLoading(false);
       }
@@ -41,35 +58,48 @@ export default function UpdateActivitiesPage() {
     runFullSync();
   }, [router]);
 
+  const total = missingGpx.length || 0;
+
   return (
     <div className="p-4 max-w-md mx-auto text-center">
-      {loading && <p>⏳ Syncing Strava activities…</p>}
-
-      {activityResult?.updated && (
-        <div className="mb-4 text-green-700">
-          ✅ Upserted {activityResult.updated} activities.
-        </div>
-      )}
-      {activityResult?.error && (
-        <div className="mb-4 text-red-700">
-          ⚠️ {activityResult.error}
-        </div>
-      )}
-
-      {missingGpx && (
-        <div className="mt-6">
-          <p className="font-medium">
-            {missingGpx.length
-              ? `📂 ${missingGpx.length} activities missing GPX files`
-              : "🎉 All activities have GPX files"}
-          </p>
-          {missingGpx.length > 0 && (
-            <ul className="text-sm text-gray-600 mt-2 max-h-40 overflow-auto">
-              {missingGpx.map((id) => (
-                <li key={id}>{id}</li>
-              ))}
-            </ul>
+      {phase === "metadata" && (
+        <>
+          <p>⏳ Syncing Strava activities…</p>
+          {activityResult?.updated && (
+            <div className="mt-2 text-green-700">
+              ✅ Upserted {activityResult.updated} activities.
+            </div>
           )}
+        </>
+      )}
+
+      {phase === "gpx" && (
+        <>
+          <div className="text-green-700">
+            ✅ Upserted {activityResult?.updated ?? 0} activities.
+          </div>
+          <div className="mt-4">
+            <p>📂 Downloading GPX files…</p>
+            <p>{progress} / {total} completed</p>
+            <div className="w-full bg-gray-200 h-2 mt-2 rounded">
+              <div
+                className="bg-blue-600 h-2 rounded"
+                style={{ width: `${total ? (progress / total) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {phase === "done" && (
+        <div className="text-green-700 mt-4">
+          🎉 All GPX files downloaded and saved!
+        </div>
+      )}
+
+      {phase === "error" && (
+        <div className="text-red-700 mt-4">
+          ⚠️ Something went wrong during sync.
         </div>
       )}
     </div>
