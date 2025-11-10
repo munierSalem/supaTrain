@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     const accessToken = await getValidStravaAccessToken(supabase, user.id);
 
     // 1️⃣ Download GPX from Strava
-    const resp = await fetch(`https://www.strava.com/api/v3/activities/${activityId}/export_gpx`, {
+    const resp = await fetch(`https://www.strava.com/activities/${activityId}/export_gpx`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 

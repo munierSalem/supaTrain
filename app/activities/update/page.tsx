@@ -8,6 +8,7 @@ export default function UpdateActivitiesPage() {
   const [activityResult, setActivityResult] = useState<{ updated?: number; error?: string } | null>(null);
   const [missingGpx, setMissingGpx] = useState<number[]>([]);
   const [progress, setProgress] = useState<number>(0);
+  const [numErrors, setNumErrors] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [phase, setPhase] = useState<"metadata" | "gpx" | "done" | "error">("metadata");
 
@@ -32,12 +33,16 @@ export default function UpdateActivitiesPage() {
         const total = missData.missing?.length ?? 0;
         if (total > 0) {
           let count = 0;
+          let errorCount = 0;
           for (const id of missData.missing) {
             try {
-              await fetch(`/api/strava/gpx?id=${id}`);
+              const res = await fetch(`/api/strava/gpx?id=${id}`);
               count++;
               setProgress(count);
+              if (!res.ok) throw new Error(`HTTP ${res.status} for ${id}`);
             } catch (err) {
+              errorCount++;
+              setNumErrors(errorCount);
               console.error("GPX download failed for", id, err);
             }
           }
@@ -80,7 +85,7 @@ export default function UpdateActivitiesPage() {
           </div>
           <div className="mt-4">
             <p>📂 Downloading GPX files…</p>
-            <p>{progress} / {total} completed</p>
+            <p>{progress} / {total} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
             <div className="w-full bg-gray-200 h-2 mt-2 rounded">
               <div
                 className="bg-blue-600 h-2 rounded"
@@ -93,7 +98,7 @@ export default function UpdateActivitiesPage() {
 
       {phase === "done" && (
         <div className="text-green-700 mt-4">
-          🎉 All GPX files downloaded and saved!
+          🎉 GPX files downloaded and saved!
         </div>
       )}
 
