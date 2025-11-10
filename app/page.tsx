@@ -62,7 +62,7 @@ export default function Home() {
   };
 
   const addActivity = () => {
-    window.location.href = '/add';
+    window.location.href = '/activities/add';
   };
 
   return (
