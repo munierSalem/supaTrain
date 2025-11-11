@@ -223,6 +223,26 @@ order by user_id, week_start desc;
 
 ```
 
+## Missing Strava GPX View
+
+```
+-- Create or replace the view
+create or replace view public.missing_streams
+with (security_invoker = true) as
+select
+  a.activity_id,
+  a.user_id,
+  a.source
+from public.activities a
+left join public.activity_data d
+  on a.activity_id = d.activity_id
+where d.activity_id is null
+  and a.source = 'strava'
+  and a.sport_type in (
+    'Run', 'Ride', 'Hike', 'Walk', 'AlpineSki', 'BackcountrySki', 'NordicSki'
+  )
+```
+
 ## Activity Data
 
 Tracks if activity GPX has been downloaded and will, eventually, also include columns for derived metrics on activities
@@ -235,8 +255,8 @@ create table if not exists public.activity_data (
   user_id            uuid not null
                      references auth.users(id) on delete cascade,
   source             text not null,   -- e.g. 'strava', 'garmin'
-  gpx_path           text not null,   -- local or S3/Supabase Storage path
-  gpx_downloaded_at  timestamptz not null default now(),
+  stream_path           text not null,   -- local or S3/Supabase Storage path
+  stream_downloaded_at  timestamptz not null default now(),
   updated_at         timestamptz not null default now(),
 
   checksum_sha256    text
@@ -250,18 +270,21 @@ create table if not exists public.activity_data (
   check (length(source) between 1 and 64)
 );
 
-comment on table  public.activity_data is
-'Per-activity file pointer + bookkeeping for GPX downloads (1:1 with activities).';
-comment on column public.activity_data.gpx_path is
-'Filesystem path or object-storage URL to the GPX file.';
-comment on column public.activity_data.checksum_sha256 is
-'SHA-256 (hex) of GPX file contents; set by app when saving file.';
+comment on table public.activity_data is
+'Per-activity file pointer + bookkeeping for Strava stream downloads (1:1 with activities).';
 
--- Optional helpful index for frequent lookups
+comment on column public.activity_data.stream_path is
+'Filesystem path or object-storage URL to the Strava stream JSON file.';
+
+comment on column public.activity_data.checksum_sha256 is
+'SHA-256 (hex) of stream JSON file contents; set by app when saving file.';
+
+-- Helpful index for frequent lookups
 create index if not exists activity_data_user_id_idx
   on public.activity_data (user_id);
-create index if not exists activity_data_gpx_downloaded_at_idx
-  on public.activity_data (gpx_downloaded_at desc);
+
+create index if not exists activity_data_stream_downloaded_at_idx
+  on public.activity_data (stream_downloaded_at desc);
 
 -- Ensure data integrity: each row’s user_id must match the parent activity’s user_id
 create or replace function public.enforce_activity_user_match()

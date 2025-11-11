@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerClient } from "@/lib/supabaseServer";
 import { getValidStravaAccessToken } from "@/lib/strava";
-import { saveGpxFile } from "@/lib/files"; // you can rename later to saveStreamFile if desired
+import { saveStreamFile } from "@/lib/files";
 import crypto from "crypto";
 
 /**
@@ -50,7 +50,7 @@ export async function GET(req: Request) {
       .digest("hex");
 
     // Save file
-    const filePath = await saveGpxFile(
+    const filePath = await saveStreamFile(
       user.id,
       Number(activityId),
       streamString
@@ -61,8 +61,8 @@ export async function GET(req: Request) {
       activity_id: Number(activityId),
       user_id: user.id,
       source: "strava",
-      gpx_path: filePath,
-      gpx_downloaded_at: new Date().toISOString(),
+      stream_path: filePath,
+      stream_downloaded_at: new Date().toISOString(),
       checksum_sha256: checksum,
       updated_at: new Date().toISOString(),
     });

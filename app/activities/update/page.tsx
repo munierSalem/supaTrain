@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 export default function UpdateActivitiesPage() {
   const router = useRouter();
   const [activityResult, setActivityResult] = useState<{ updated?: number; error?: string } | null>(null);
-  const [missingGpx, setMissingGpx] = useState<number[]>([]);
+  const [missingStream, setmissingStream] = useState<number[]>([]);
   const [progress, setProgress] = useState<number>(0);
   const [numErrors, setNumErrors] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const [phase, setPhase] = useState<"metadata" | "gpx" | "done" | "error">("metadata");
+  const [phase, setPhase] = useState<"metadata" | "streams" | "done" | "error">("metadata");
 
   useEffect(() => {
     async function runFullSync() {
@@ -22,28 +22,28 @@ export default function UpdateActivitiesPage() {
         setActivityResult(metaData);
         if (!metaRes.ok) throw new Error(metaData.error || "Metadata sync failed");
 
-        // 2️⃣ Fetch missing GPX
-        setPhase("gpx");
-        const missRes = await fetch("/api/strava/missing-gpx");
+        // 2️⃣ Fetch missing streams
+        setPhase("streams");
+        const missRes = await fetch("/api/strava/missing-streams");
         const missData = await missRes.json();
-        if (!missRes.ok) throw new Error(missData.error || "Missing GPX fetch failed");
-        setMissingGpx(missData.missing || []);
+        if (!missRes.ok) throw new Error(missData.error || "Missing Stream fetch failed");
+        setmissingStream(missData.missing || []);
 
-        // 3️⃣ Loop through GPX downloads
+        // 3️⃣ Loop through stream downloads
         const total = missData.missing?.length ?? 0;
         if (total > 0) {
           let count = 0;
           let errorCount = 0;
           for (const id of missData.missing) {
             try {
-              const res = await fetch(`/api/strava/gpx?id=${id}`);
+              const res = await fetch(`/api/strava/stream?id=${id}`);
               count++;
               setProgress(count);
               if (!res.ok) throw new Error(`HTTP ${res.status} for ${id}`);
             } catch (err) {
               errorCount++;
               setNumErrors(errorCount);
-              console.error("GPX download failed for", id, err);
+              console.error("Stream download failed for", id, err);
             }
           }
         }
@@ -63,7 +63,7 @@ export default function UpdateActivitiesPage() {
     runFullSync();
   }, [router]);
 
-  const total = missingGpx.length || 0;
+  const total = missingStream.length || 0;
 
   return (
     <div className="p-4 max-w-md mx-auto text-center">
@@ -78,13 +78,13 @@ export default function UpdateActivitiesPage() {
         </>
       )}
 
-      {phase === "gpx" && (
+      {phase === "streams" && (
         <>
           <div className="text-green-700">
             ✅ Upserted {activityResult?.updated ?? 0} activities.
           </div>
           <div className="mt-4">
-            <p>📂 Downloading GPX files…</p>
+            <p>📂 Downloading Stream files…</p>
             <p>{progress} / {total} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
             <div className="w-full bg-gray-200 h-2 mt-2 rounded">
               <div
@@ -98,7 +98,7 @@ export default function UpdateActivitiesPage() {
 
       {phase === "done" && (
         <div className="text-green-700 mt-4">
-          🎉 GPX files downloaded and saved!
+          🎉 Stream files downloaded and saved!
         </div>
       )}
 
