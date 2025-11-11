@@ -232,7 +232,8 @@ with (security_invoker = true) as
 select
   a.activity_id,
   a.user_id,
-  a.source
+  a.source,
+  a.sport_type
 from public.activities a
 left join public.activity_data d
   on a.activity_id = d.activity_id
