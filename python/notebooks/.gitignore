@@ -1,0 +1,65 @@
+# -------------------------------------------------------------------
+# Jupyter / IPython
+# -------------------------------------------------------------------
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*.nbconvert.ipynb
+
+# Avoid committing automatically saved notebook checkpoints
+# and converted files (HTML, etc.)
+*_checkpoint.ipynb
+*.html
+*.pdf
+
+# -------------------------------------------------------------------
+# Temporary runtime files
+# -------------------------------------------------------------------
+# Local caches, outputs, or generated images
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+*.out
+*.err
+*.dat
+*.npy
+*.npz
+*.pkl
+*.gz
+*.zip
+
+# -------------------------------------------------------------------
+# Python environment junk
+# -------------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv
+venv/
+env/
+pip-wheel-metadata/
+.cache/
+.ipython/
+.pytest_cache/
+.mypy_cache/
+.pyre/
+
+# -------------------------------------------------------------------
+# Notebook-specific data or scratch exports
+# -------------------------------------------------------------------
+# CSVs, plots, or pickled intermediate files saved during analysis
+*.csv
+*.json
+*.feather
+*.parquet
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.mov
+*.tiff
