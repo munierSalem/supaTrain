@@ -31,4 +31,4 @@ def load_stream(activity_id: int, user_id: str) -> Tuple[pd.DataFrame, Dict[str,
     df = pd.DataFrame(data)
     if "time" in df.columns:
         df = df.sort_values("time").reset_index(drop=True)
-    return df, raw_data
+    return df
