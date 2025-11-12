@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { extractActivityId } from "@/lib/extractParams";
 import { getServerClient } from "@/lib/supabaseServer";
 import { spawn } from "child_process";
 
@@ -17,13 +18,7 @@ export async function GET(req: Request) {
     if (userErr || !user) throw new Error("Unauthorized");
 
     // 🆔 Extract ?id= param
-    const { searchParams } = new URL(req.url);
-    const rawId = searchParams.get("id");
-    if (!rawId) throw new Error("Missing activity ID");
-    const activityId = Number(rawId);
-    if (!Number.isSafeInteger(activityId) || activityId <= 0) {
-      throw new Error("Invalid activity ID");
-    }
+    const activityId = extractActivityId(req);
 
     // 🐍 Run the Python script (blocking, but fine for short analyses)
     const py = spawn("python3", [

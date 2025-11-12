@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerClient } from "@/lib/supabaseServer";
 import { getValidStravaAccessToken } from "@/lib/strava";
 import { saveStreamFile } from "@/lib/files";
+import { extractActivityId } from "@/lib/extractParams";
 import crypto from "crypto";
 
 /**
@@ -19,13 +20,7 @@ export async function GET(req: Request) {
     if (userErr || !user) throw new Error("Unauthorized");
 
     // 🆔 Extract ?id= param
-    const { searchParams } = new URL(req.url);
-    const rawId = searchParams.get("id");
-    if (!rawId) throw new Error("Missing activity ID");
-    const activityId = Number(rawId);
-    if (!Number.isSafeInteger(activityId) || activityId <= 0) {
-      throw new Error("Invalid activity ID");
-    }
+    const activityId = extractActivityId(req);
 
     // 🔑 Get a valid Strava access token (refreshes if expired)
     const accessToken = await getValidStravaAccessToken(supabase, user.id);
