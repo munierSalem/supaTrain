@@ -463,3 +463,35 @@ It’s organized by **time horizon** — what should be done immediately, soon, 
 - [ ] Cookies are `HttpOnly` and `Secure`.
 - [ ] `.env*` files are not committed; CI logs don’t echo secrets.
 - [ ] Backups exist, are encrypted, and are access-controlled.
+
+
+## More Security Ideas:
+
+### Tools to run quickly
+
+  - npm audit (JS deps)
+  - pip-audit or safety (Python deps)
+  - bandit (Python static analysis for security)
+  - snyk (optional paid/free scans)
+  - GitHub CodeQL / Dependabot (automate)
+
+### Tests / checks to add to CI
+
+  - npm audit --audit-level=moderate or fail on high/critical.
+  - pip-audit before merge.
+  - Lint & type check (pytest, mypy, flake8).
+  - Run a small smoke test that hits a few server routes with a test user session and asserts 401 for unauthenticated calls.
+
+### Monitoring and alerting
+
+  - Track 500/4xx spikes, especially for analysis runner and GPX endpoints.
+  - Track python runner exit codes and execution time; alert if > expected.
+  - Retain logs for some period (30/90 days depending on needs).
+
+### A minimal periodic checklist (one-pager you can run every sprint)
+  - npm audit / pip-audit — fix or triage criticals.
+  - Confirm no shell: true and no exec with interpolated strings.
+  - Review all app/api/** endpoints; map which are public vs internal.
+  - Check RLS policies exist for user tables and test a horizontal attempt.
+  - Confirm service role key not in client bundles / repo.
+  - Verify logs/metrics for abnormal spikes.

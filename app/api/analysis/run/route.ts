@@ -28,7 +28,9 @@ export async function GET(req: Request) {
     // 🐍 Run the Python script (blocking, but fine for short analyses)
     const py = spawn("python3", [
       "python/scripts/derive_metrics.py",
+      "--activity_id",
       String(activityId),
+      "--user_id",
       user.id,
     ]);
 
