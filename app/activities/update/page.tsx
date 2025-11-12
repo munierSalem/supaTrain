@@ -78,9 +78,9 @@ export default function UpdateActivitiesPage() {
           }
         }
 
-        setPhase("done"); FIXME
+        setPhase("done");
         // small delay to let user see "done" message
-        setTimeout(() => router.push("/"), 1500); FIXME
+        setTimeout(() => router.push("/"), 1500);
       } catch (err) {
         console.error(err);
         setPhase("error");
@@ -148,9 +148,17 @@ export default function UpdateActivitiesPage() {
       )}
 
       {phase === "done" && (
-        <div className="text-green-700 mt-4">
-          🎉 Stream files downloaded and saved!
-        </div>
+        <>
+          <div className="text-green-700">
+            ✅ Upserted {activityResult?.updated ?? 0} activities.
+          </div>
+          <div className="text-green-700 mt-4">
+            🎉 Stream files downloaded and saved!
+          </div>
+          <div className="text-green-700 mt-4">
+            🎉 Analysis complete!
+          </div>
+        </>
       )}
 
       {phase === "error" && (

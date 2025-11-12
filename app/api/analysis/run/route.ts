@@ -57,9 +57,7 @@ export async function GET(req: Request) {
     const { error: upsertErr } = await supabase
       .from("activity_data")
       .update({
-        analyzed_at: analysisJson.analyzed_at,
-        uphill_heartrate: analysisJson.uphill_heartrate,
-        downhill_heartrate: analysisJson.downhill_heartrate,
+        ...analysisJson,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", user.id)

@@ -133,9 +133,11 @@ def compute_metrics(activity_id: int, user_id: str) -> dict:
 
     # uphill / downhill heartrate
     if has_required_cols(df, {'time', 'heartrate', 'altitude'}):
-        metrics.update({
-            'uphill_heartrate': time_weighted_avg(df.query("segment == 'uphill'"), "heartrate"),
-            'downhill_heartrate': time_weighted_avg(df.query("segment == 'downhill'"), "heartrate"), 
-        })
+        uphill_heartrate = time_weighted_avg(df.query("segment == 'uphill'"), "heartrate")
+        downhill_heartrate = time_weighted_avg(df.query("segment == 'downhill'"), "heartrate")
+        if not np.isnan(uphill_heartrate):
+            metrics['uphill_heartrate'] = uphill_heartrate
+        if not np.isnan(downhill_heartrate):
+            metrics['downhill_heartrate'] = downhill_heartrate
 
     return metrics
