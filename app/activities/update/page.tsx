@@ -57,12 +57,10 @@ export default function UpdateActivitiesPage() {
         setmissingAnalysis(missAnalysis.missing || []);
 
         // 5️⃣ Loop through stream downloads
-        let total = missAnalysis.missing?.length ?? 0;
+        total = missAnalysis.missing?.length ?? 0;
         if (total > 0) {
           let count = 0;
           let errorCount = 0;
-
-          setTimeout(() => router.push("/"), 1500);  // small delay FIXME
           // for (const id of missAnalysis.missing) {
           //   try {
           //     const res = await fetch(`/api/strava/stream?id=${id}`);
@@ -77,9 +75,9 @@ export default function UpdateActivitiesPage() {
           // }
         }
 
-        setPhase("done");
+        // setPhase("done"); FIXME
         // small delay to let user see "done" message
-        setTimeout(() => router.push("/"), 1500);
+        // setTimeout(() => router.push("/"), 1500); FIXME
       } catch (err) {
         console.error(err);
         setPhase("error");

@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ data?.map((r) => r.activity_id) ?? [] });
+    return NextResponse.json({ missing: data?.map((r) => r.activity_id) ?? [] });
   } catch (err: any) {
     console.error("Unhandled error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
