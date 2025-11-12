@@ -11,7 +11,7 @@ from scipy.signal import find_peaks
 def time_weighted_avg(
     df: pd.DataFrame,
     value_col: str,
-    time_col: str = "time"
+    weight_col: str = "dt"
 ) -> float:
     """
     Compute a time-weighted average of a variable in a time series.
@@ -22,9 +22,9 @@ def time_weighted_avg(
         DataFrame containing a time column and a value column.
     value_col : str
         Name of the column containing the quantity to average (e.g. 'heartrate', 'power').
-    time_col : str, optional
-        Name of the column representing elapsed time in seconds (default 'time').
-        May be absolute timestamps or cumulative seconds.
+    weight_col : str, optional
+        Name of the column representing differential time (dt), or another desired
+        weighting field
 
     Returns
     -------
@@ -42,25 +42,16 @@ def time_weighted_avg(
     --------
     >>> time_weighted_avg(df, 'heartrate')
     134.2
-    >>> time_weighted_avg(df, 'power', time_col='elapsed')
+    >>> time_weighted_avg(df, 'power', weight_col='d_elapsed')
     215.7
     """
-    if time_col not in df.columns or value_col not in df.columns:
-        raise ValueError(f"Missing required columns '{time_col}' or '{value_col}'")
+    if weight_col not in df.columns or value_col not in df.columns:
+        raise ValueError(f"Missing required columns '{weight_col}' or '{value_col}'")
 
-    dt = df[time_col].diff()
-    if np.issubdtype(df[time_col].dtype, np.datetime64):
-        dt = dt.dt.total_seconds()
-    dt = dt.fillna(0)
-
-    values = df[value_col].astype(float)
-    mask = values.notna()
-    numer = (dt[mask] * values[mask]).sum()
-    denom = dt[mask].sum()
-
+    numer = (df[value_col] * df[weight_col]).sum()
+    denom = df[weight_col].sum()
     if denom == 0:
         return float("nan")
-
     return float(numer / denom)
 
 
@@ -123,9 +114,28 @@ def label_uphill_downhill(
     return data
 
 
+def has_required_cols(df: pd.DataFrame, required_cols: set) -> bool:
+    return len(required_cols - set(df.columns)) == 0
+
+
 def compute_metrics(activity_id: int, user_id: str) -> dict:
     df = load_stream(activity_id, user_id)
-    # do stuff here
-    return {
+
+    metrics = {
         "analyzed_at": datetime.utcnow().isoformat(),
     }
+
+    # intermediate quantities we'll need
+    if 'time' in df.columns:
+        df['dt'] = df['time'].diff().fillna(0)
+    if 'altitude' in df.columns:
+        df = label_uphill_downhill(df)
+
+    # uphill / downhill heartrate
+    if has_required_cols(df, {'time', 'heartrate', 'altitude'}):
+        metrics.update({
+            'uphill_heartrate': time_weighted_avg(df.query("segment == 'uphill'"), "heartrate"),
+            'downhill_heartrate': time_weighted_avg(df.query("segment == 'downhill'"), "heartrate"), 
+        })
+
+    return metrics
