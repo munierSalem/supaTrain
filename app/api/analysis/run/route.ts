@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { extractActivityId } from "@/lib/extractParams";
-import { getServerClient } from "@/lib/supabaseServer";
 import { spawn } from "child_process";
+
+import { getServerClient } from "@/lib/supabaseServer";
+import { parseActivityId } from "@/lib/parseParams";
 
 /**
  * Run an activity's stream data analysis via Python
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
     if (userErr || !user) throw new Error("Unauthorized");
 
     // 🆔 Extract ?id= param
-    const activityId = extractActivityId(req);
+    const activityId = parseActivityId(req);
 
     // 🐍 Run the Python script (blocking, but fine for short analyses)
     const py = spawn("python3", [

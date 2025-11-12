@@ -1,5 +1,4 @@
-// /lib/extractParam.ts
-export function extractActivityId(req: Request): number {
+export function parseActivityId(req: Request): number {
   const { searchParams } = new URL(req.url);
   const rawId = searchParams.get("id");
   if (!rawId) throw new Error("Missing activity ID");

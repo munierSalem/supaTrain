@@ -1,9 +1,10 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
+
 import { getServerClient } from "@/lib/supabaseServer";
 import { getValidStravaAccessToken } from "@/lib/strava";
+import { parseActivityId } from "@/lib/parseParams";
 import { saveStreamFile } from "@/lib/files";
-import { extractActivityId } from "@/lib/extractParams";
-import crypto from "crypto";
 
 /**
  * Downloads an activity's stream data from Strava and saves it as JSON.
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
     if (userErr || !user) throw new Error("Unauthorized");
 
     // 🆔 Extract ?id= param
-    const activityId = extractActivityId(req);
+    const activityId = parseActivityId(req);
 
     // 🔑 Get a valid Strava access token (refreshes if expired)
     const accessToken = await getValidStravaAccessToken(supabase, user.id);
