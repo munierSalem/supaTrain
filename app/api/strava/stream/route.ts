@@ -20,8 +20,12 @@ export async function GET(req: Request) {
 
     // 🆔 Extract ?id= param
     const { searchParams } = new URL(req.url);
-    const activityId = searchParams.get("id");
-    if (!activityId) throw new Error("Missing activity ID");
+    const rawId = searchParams.get("id");
+    if (!rawId) throw new Error("Missing activity ID");
+    const activityId = Number(rawId);
+    if (!Number.isSafeInteger(activityId) || activityId <= 0) {
+      throw new Error("Invalid activity ID");
+    }
 
     // 🔑 Get a valid Strava access token (refreshes if expired)
     const accessToken = await getValidStravaAccessToken(supabase, user.id);
@@ -52,13 +56,13 @@ export async function GET(req: Request) {
     // Save file
     const filePath = await saveStreamFile(
       user.id,
-      Number(activityId),
+      activityId,
       streamString
     );
 
     // 🗄️ Upsert into activity_data
     const { error: upsertErr } = await supabase.from("activity_data").upsert({
-      activity_id: Number(activityId),
+      activity_id: activityId,
       user_id: user.id,
       source: "strava",
       stream_path: filePath,
