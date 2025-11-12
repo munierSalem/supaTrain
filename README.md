@@ -495,3 +495,12 @@ It’s organized by **time horizon** — what should be done immediately, soon, 
   - Check RLS policies exist for user tables and test a horizontal attempt.
   - Confirm service role key not in client bundles / repo.
   - Verify logs/metrics for abnormal spikes.
+
+## 🧠 Tier 2: “Public beta” polish (only later if it grows)
+
+### If you ever open it up broadly:
+
+  - Add rate limiting or a queue to prevent abuse (e.g., too many Strava syncs).
+  - Implement CSRF protection for POST routes (Next.js and Supabase handle most cases automatically).
+  - Serve a simple privacy notice (“we store basic Strava activity data; no sharing”).
+  - Set up error monitoring (Sentry, Supabase logs, or Vercel monitoring).
