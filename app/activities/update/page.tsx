@@ -8,6 +8,7 @@ export default function UpdateActivitiesPage() {
   const [activityResult, setActivityResult] = useState<{ updated?: number; error?: string } | null>(null);
   const [missingStream, setmissingStream] = useState<number[]>([]);
   const [missingAnalysis, setmissingAnalysis] = useState<number[]>([]);
+  const [numTotal, setTotal] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [numErrors, setNumErrors] = useState<number>(0);
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,7 @@ export default function UpdateActivitiesPage() {
 
         // 3️⃣ Loop through stream downloads
         let total = missData.missing?.length ?? 0;
+        setTotal(total);
         if (total > 0) {
           let count = 0;
           let errorCount = 0;
@@ -58,6 +60,7 @@ export default function UpdateActivitiesPage() {
 
         // 5️⃣ Loop through stream downloads
         total = missAnalysis.missing?.length ?? 0;
+        setTotal(total);
         if (total > 0) {
           let count = 0;
           let errorCount = 0;
@@ -112,11 +115,11 @@ export default function UpdateActivitiesPage() {
           </div>
           <div className="mt-4">
             <p>📂 Downloading Stream files…</p>
-            <p>{progress} / {total} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
+            <p>{progress} / {numTotal} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
             <div className="w-full bg-gray-200 h-2 mt-2 rounded">
               <div
                 className="bg-blue-600 h-2 rounded"
-                style={{ width: `${total ? (progress / total) * 100 : 0}%` }}
+                style={{ width: `${numTotal ? (progress / numTotal) * 100 : 0}%` }}
               />
             </div>
           </div>
@@ -133,11 +136,11 @@ export default function UpdateActivitiesPage() {
           </div>
           <div className="mt-4">
             <p>📈 Running Activity Analyses…</p>
-            <p>{progress} / {total} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
+            <p>{progress} / {numTotal} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
             <div className="w-full bg-gray-200 h-2 mt-2 rounded">
               <div
                 className="bg-blue-600 h-2 rounded"
-                style={{ width: `${total ? (progress / total) * 100 : 0}%` }}
+                style={{ width: `${numTotal ? (progress / numTotal) * 100 : 0}%` }}
               />
             </div>
           </div>
