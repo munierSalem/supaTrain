@@ -30,7 +30,7 @@ export default function ActivityTable() {
             <th className="border-right"></th>
             <th colSpan="2" className="border-right"></th>
             <th colSpan="2" className="border-right">Elevation (ft)</th>
-            <th colSpan="2" className="border-right">Heartrate (bpm)</th>
+            <th colSpan="4" className="border-right">Heartrate (bpm)</th>
           </tr>
           <tr>
             <th></th>
@@ -41,6 +41,8 @@ export default function ActivityTable() {
             <th>Gain</th>
             <th  className="border-right">Max</th>
             <th>Avg</th>
+            <th>Uphill</th>
+            <th>Downhill</th>
             <th>Max</th>
           </tr>
         </thead>
@@ -78,6 +80,16 @@ export default function ActivityTable() {
                 <td>{Math.round(a.total_elevation_gain * 3.28084).toLocaleString()}</td>
                 <td  className="border-right">{Math.round(a.elev_high * 3.28084).toLocaleString()}</td>
                 <td>{(a.has_heartrate ? a.average_heartrate.toFixed(0) : '')}</td>
+                <td>
+                  {a.has_heartrate && a.uphill_heartrate != null
+                    ? a.uphill_heartrate.toFixed(0)
+                    : ""}
+                </td>
+                <td>
+                  {a.has_heartrate && a.downhill_heartrate != null
+                    ? a.downhill_heartrate.toFixed(0)
+                    : ""}
+                </td>
                 <td>{(a.has_heartrate ? a.max_heartrate.toFixed(0) : '')}</td>
               </tr>
             );
