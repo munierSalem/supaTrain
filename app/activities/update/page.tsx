@@ -61,23 +61,23 @@ export default function UpdateActivitiesPage() {
         if (total > 0) {
           let count = 0;
           let errorCount = 0;
-          // for (const id of missAnalysis.missing) {
-          //   try {
-          //     const res = await fetch(`/api/strava/stream?id=${id}`);
-          //     count++;
-          //     setProgress(count);
-          //     if (!res.ok) throw new Error(`HTTP ${res.status} for ${id}`);
-          //   } catch (err) {
-          //     errorCount++;
-          //     setNumErrors(errorCount);
-          //     console.error("Stream download failed for", id, err);
-          //   }
-          // }
+          for (const id of missAnalysis.missing) {
+            try {
+              const res = await fetch(`/api/analysis/run?id=${id}`);
+              count++;
+              setProgress(count);
+              if (!res.ok) throw new Error(`HTTP ${res.status} for ${id}`);
+            } catch (err) {
+              errorCount++;
+              setNumErrors(errorCount);
+              console.error("Stream analysis failed for", id, err);
+            }
+          }
         }
 
-        // setPhase("done"); FIXME
+        setPhase("done"); FIXME
         // small delay to let user see "done" message
-        // setTimeout(() => router.push("/"), 1500); FIXME
+        setTimeout(() => router.push("/"), 1500); FIXME
       } catch (err) {
         console.error(err);
         setPhase("error");
