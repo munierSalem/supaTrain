@@ -7,10 +7,11 @@ export default function UpdateActivitiesPage() {
   const router = useRouter();
   const [activityResult, setActivityResult] = useState<{ updated?: number; error?: string } | null>(null);
   const [missingStream, setmissingStream] = useState<number[]>([]);
+  const [missingAnalysis, setmissingAnalysis] = useState<number[]>([]);
   const [progress, setProgress] = useState<number>(0);
   const [numErrors, setNumErrors] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const [phase, setPhase] = useState<"metadata" | "streams" | "done" | "error">("metadata");
+  const [phase, setPhase] = useState<"metadata" | "streams" | "analysis" | "done" | "error">("metadata");
 
   useEffect(() => {
     async function runFullSync() {
@@ -30,7 +31,7 @@ export default function UpdateActivitiesPage() {
         setmissingStream(missData.missing || []);
 
         // 3️⃣ Loop through stream downloads
-        const total = missData.missing?.length ?? 0;
+        let total = missData.missing?.length ?? 0;
         if (total > 0) {
           let count = 0;
           let errorCount = 0;
@@ -46,6 +47,34 @@ export default function UpdateActivitiesPage() {
               console.error("Stream download failed for", id, err);
             }
           }
+        }
+
+        // 4️⃣ Fetch activities w/o analysis
+        setPhase("analysis");
+        const missAnalysisRes = await fetch("/api/analysis/missing");
+        const missAnalysis = await missAnalysisRes.json();
+        if (!missAnalysisRes.ok) throw new Error(missAnalysisRes.error || "Missing Analysis fetch failed");
+        setmissingAnalysis(missAnalysis.missing || []);
+
+        // 5️⃣ Loop through stream downloads
+        let total = missAnalysis.missing?.length ?? 0;
+        if (total > 0) {
+          let count = 0;
+          let errorCount = 0;
+
+          setTimeout(() => router.push("/"), 1500);  // small delay FIXME
+          // for (const id of missAnalysis.missing) {
+          //   try {
+          //     const res = await fetch(`/api/strava/stream?id=${id}`);
+          //     count++;
+          //     setProgress(count);
+          //     if (!res.ok) throw new Error(`HTTP ${res.status} for ${id}`);
+          //   } catch (err) {
+          //     errorCount++;
+          //     setNumErrors(errorCount);
+          //     console.error("Stream download failed for", id, err);
+          //   }
+          // }
         }
 
         setPhase("done");
@@ -85,6 +114,27 @@ export default function UpdateActivitiesPage() {
           </div>
           <div className="mt-4">
             <p>📂 Downloading Stream files…</p>
+            <p>{progress} / {total} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
+            <div className="w-full bg-gray-200 h-2 mt-2 rounded">
+              <div
+                className="bg-blue-600 h-2 rounded"
+                style={{ width: `${total ? (progress / total) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+        </>
+      )}
+
+      {phase === "analysis" && (
+        <>
+          <div className="text-green-700">
+            ✅ Upserted {activityResult?.updated ?? 0} activities.
+          </div>
+          <div className="text-green-700 mt-4">
+            🎉 Stream files downloaded and saved!
+          </div>
+          <div className="mt-4">
+            <p>📈 Running Activity Analyses…</p>
             <p>{progress} / {total} completed { numErrors > 0 ? `[${numErrors} errors]` : ''}</p>
             <div className="w-full bg-gray-200 h-2 mt-2 rounded">
               <div

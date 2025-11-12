@@ -314,6 +314,21 @@ create trigger trg_activity_user_match
 before insert or update on public.activity_data
 for each row execute function public.enforce_activity_user_match();
 
+-- Add analysis metadata + derived metrics to activity_data
+
+ALTER TABLE public.activity_data
+ADD COLUMN IF NOT EXISTS analyzed_at timestamptz,
+ADD COLUMN IF NOT EXISTS uphill_heartrate double precision,
+ADD COLUMN IF NOT EXISTS downhill_heartrate double precision;
+
+-- Optional: helpful comment annotations
+COMMENT ON COLUMN public.activity_data.analyzed_at IS
+'Timestamp when the activity was last analyzed for derived metrics.';
+COMMENT ON COLUMN public.activity_data.uphill_heartrate IS
+'Time-weighted mean heart rate (bpm) during uphill segments.';
+COMMENT ON COLUMN public.activity_data.downhill_heartrate IS
+'Time-weighted mean heart rate (bpm) during downhill segments.';
+
 -- Auto-bump updated_at
 create or replace function public.touch_updated_at()
 returns trigger language plpgsql as $$
@@ -355,6 +370,8 @@ create policy activity_data_delete
 on public.activity_data
 for delete
 using (user_id = auth.uid());
+
+
 ```
 
 
