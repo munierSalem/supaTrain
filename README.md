@@ -374,6 +374,24 @@ using (user_id = auth.uid());
 
 ```
 
+## Activities Enriched View
+```
+create or replace view public.activities_enriched as
+select 
+  a.*,
+  d.updated_at as data_updated_at,
+  d.stream_path,
+  d.stream_downloaded_at,
+  d.analyzed_at,
+  d.uphill_heartrate,
+  d.downhill_heartrate
+from public.activities a
+left join public.activity_data d
+  on a.activity_id = d.activity_id
+  and a.user_id = d.user_id
+  and a.source = d.source;
+```
+
 
 ## 🛡️ Security Hardening Checklist
 
