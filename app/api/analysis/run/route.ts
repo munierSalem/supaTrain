@@ -18,13 +18,17 @@ export async function GET(req: Request) {
 
     // 🆔 Extract ?id= param
     const { searchParams } = new URL(req.url);
-    const activityId = searchParams.get("id");
-    if (!activityId) throw new Error("Missing activity ID");
+    const rawId = searchParams.get("id");
+    if (!rawId) throw new Error("Missing activity ID");
+    const activityId = Number(rawId);
+    if (!Number.isSafeInteger(activityId) || activityId <= 0) {
+      throw new Error("Invalid activity ID");
+    }
 
     // 🐍 Run the Python script (blocking, but fine for short analyses)
     const py = spawn("python3", [
       "python/scripts/derive_metrics.py",
-      activityId,
+      String(activityId),
       user.id,
     ]);
 
@@ -57,7 +61,9 @@ export async function GET(req: Request) {
     const { error: upsertErr } = await supabase
       .from("activity_data")
       .update({
-        ...analysisJson,
+        analyzed_at: analysisJson.analyzed_at,
+        uphill_heartrate: analysisJson.uphill_heartrate,
+        downhill_heartrate: analysisJson.downhill_heartrate,
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", user.id)
