@@ -376,7 +376,8 @@ using (user_id = auth.uid());
 
 ## Activities Enriched View
 ```
-create or replace view public.activities_enriched as
+create or replace view public.activities_enriched
+with (security_invoker = true) as
 select 
   a.*,
   d.updated_at as data_updated_at,
@@ -552,3 +553,28 @@ It’s organized by **time horizon** — what should be done immediately, soon, 
   - Implement CSRF protection for POST routes (Next.js and Supabase handle most cases automatically).
   - Serve a simple privacy notice (“we store basic Strava activity data; no sharing”).
   - Set up error monitoring (Sentry, Supabase logs, or Vercel monitoring).
+
+## Functions
+
+### `get_user_health_metrics_as_of`
+
+```
+CREATE OR REPLACE FUNCTION get_user_health_metrics_as_of(
+  p_user_id uuid,
+  p_as_of_date date DEFAULT current_date
+)
+RETURNS jsonb
+LANGUAGE sql
+AS $$
+  SELECT jsonb_object_agg(metric_name, metric_value)
+  FROM (
+    SELECT DISTINCT ON (metric_name)
+           metric_name,
+           metric_value
+    FROM user_health_metrics
+    WHERE user_id = p_user_id
+      AND effective_date <= p_as_of_date
+    ORDER BY metric_name, effective_date DESC
+  ) AS latest;
+$$;
+```
