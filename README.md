@@ -407,6 +407,10 @@ CREATE TABLE user_health_metrics (
   created_at     timestamptz NOT NULL DEFAULT now()
 );
 
+ALTER TABLE user_health_metrics
+ADD CONSTRAINT health_metric_unique_per_day
+UNIQUE (user_id, metric_name, effective_date);
+
 ALTER TABLE user_health_metrics ENABLE ROW LEVEL SECURITY;
 
 
