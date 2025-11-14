@@ -392,6 +392,50 @@ left join public.activity_data d
   and a.source = d.source;
 ```
 
+## User Health Metrics
+
+```
+CREATE TABLE user_health_metrics (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id        uuid NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
+
+  metric_name    text NOT NULL CHECK (metric_name <> ''),
+  metric_value   numeric NOT NULL,
+
+  effective_date date NOT NULL,
+
+  created_at     timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE user_health_metrics ENABLE ROW LEVEL SECURITY;
+
+
+CREATE POLICY "Users can insert their own health metrics"
+ON user_health_metrics
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can select their own health metrics"
+ON user_health_metrics
+FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own health metrics"
+ON user_health_metrics
+FOR UPDATE
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own health metrics"
+ON user_health_metrics
+FOR DELETE
+USING (auth.uid() = user_id);
+
+CREATE INDEX health_metric_lookup_idx
+ON user_health_metrics (user_id, metric_name, effective_date DESC);
+
+```
+
 
 ## 🛡️ Security Hardening Checklist
 
