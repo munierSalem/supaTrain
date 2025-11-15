@@ -565,16 +565,43 @@ CREATE OR REPLACE FUNCTION get_user_health_metrics_as_of(
 )
 RETURNS jsonb
 LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
 AS $$
-  SELECT jsonb_object_agg(metric_name, metric_value)
-  FROM (
-    SELECT DISTINCT ON (metric_name)
-           metric_name,
-           metric_value
-    FROM user_health_metrics
-    WHERE user_id = p_user_id
-      AND effective_date <= p_as_of_date
-    ORDER BY metric_name, effective_date DESC
-  ) AS latest;
+WITH ordered AS (
+  SELECT
+    metric_name,
+    metric_value,
+    effective_date
+  FROM user_health_metrics
+  WHERE user_id = p_user_id
+),
+-- Try to find the most recent metric before/as of the date
+selected_before AS (
+  SELECT *
+  FROM ordered
+  WHERE effective_date <= p_as_of_date
+  ORDER BY effective_date DESC
+),
+-- If none exist before/as-of, pick the earliest one after
+selected_after AS (
+  SELECT *
+  FROM ordered
+  WHERE effective_date > p_as_of_date
+  ORDER BY effective_date ASC
+),
+combined AS (
+  SELECT *
+  FROM selected_before
+  UNION ALL
+  SELECT *
+  FROM selected_after
+  WHERE NOT EXISTS (SELECT 1 FROM selected_before)
+)
+SELECT COALESCE(
+  jsonb_object_agg(metric_name, metric_value),
+  '{}'::jsonb
+)
+FROM combined;
 $$;
 ```
