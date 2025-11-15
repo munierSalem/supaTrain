@@ -1,18 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { getServerClient } from "@/lib/supabaseServer";
+import { fetchHealthMetrics } from "@/lib/server/fetchHealthMetrics";
 import { parseAsOfDate } from "@/lib/parseParams";
+import { getServerClient } from "@/lib/supabaseServer";
 
 
 export async function GET(req: Request) {
   const supabase = await getServerClient();
-
-  let asOf: string | null = null;
-  try {
-    asOf = parseAsOfDate(req);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
-  }
 
   const {
     data: { user },
@@ -22,23 +16,14 @@ export async function GET(req: Request) {
     return NextResponse.json({ metrics: {} });
   }
 
-  const args: Record<string, any> = {
-    p_user_id: user.id,
-  };
-
-  if (asOf !== null) {
-    args.p_as_of_date = asOf;
-  }
-  const { data, error } = await supabase.rpc(
-    "get_user_health_metrics_as_of",
-    args
-  );
-
-  if (error) {
-    console.error(error);
-    return NextResponse.json({ metrics: {} });
+  let asOf: string | null = null;
+  try {
+    asOf = parseAsOfDate(req);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
 
-  // `data` is already a JSON object from Postgres
-  return NextResponse.json({ metrics: data ?? {} });
+  const metrics = await fetchHealthMetrics(supabase, user.id, asOf);
+
+  return NextResponse.json({ metrics });
 }

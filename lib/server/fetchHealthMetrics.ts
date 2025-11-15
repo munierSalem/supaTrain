@@ -1,14 +1,16 @@
 export async function fetchHealthMetrics(
   supabase: any,
   userId: string,
-  asOf: string
+  asOf: string | null
 ) {
+  const args: Record<string, any> = { p_user_id: userId };
+  if (asOf !== null) {
+    args.p_as_of_date = asOf;
+  }
+
   const { data, error } = await supabase.rpc(
     "get_user_health_metrics_as_of",
-    {
-      p_user_id: userId,
-      p_as_of_date: asOf,
-    }
+    args
   );
 
   if (error) {
@@ -16,5 +18,5 @@ export async function fetchHealthMetrics(
     return {};
   }
 
-  return data; // already a dict
+  return data ?? {};
 }
