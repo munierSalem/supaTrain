@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { spawn } from "child_process";
 
+import { fetchActivityMetadata } from "@/lib/server/fetchActivityMetadata";   // we'll write this
+import { fetchHealthMetrics } from "@/lib/server/fetchHealthMetrics"; 
 import { getServerClient } from "@/lib/supabaseServer";
 import { parseActivityId } from "@/lib/parseParams";
 
@@ -21,6 +23,16 @@ export async function GET(req: Request) {
     // 🆔 Extract ?id= param
     const activityId = parseActivityId(req);
 
+    // 🏃‍♂️ Fetch activity metadata so we can get asOf
+    const activity = await fetchActivityMetadata(supabase, user.id, activityId);
+    if (!activity) throw new Error("Activity not found");
+    const asOf = activity.start_date?.slice(0, 10);  // safe ISO slicing
+    if (!asOf) throw new Error("Missing start_date for activity");
+
+    // ❤️ Fetch health metrics as-of that activity date
+    const healthMetrics = await fetchHealthMetrics(supabase, user.id, asOf);
+    const healthJson = JSON.stringify(healthMetrics);
+
     // 🐍 Run the Python script (blocking, but fine for short analyses)
     const py = spawn("python3", [
       "python/scripts/derive_metrics.py",
@@ -28,6 +40,8 @@ export async function GET(req: Request) {
       String(activityId),
       "--user_id",
       user.id,
+      "--health_metrics",
+      healthJson,
     ]);
 
     let stdout = "";
