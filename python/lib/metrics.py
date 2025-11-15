@@ -118,7 +118,11 @@ def has_required_cols(df: pd.DataFrame, required_cols: set) -> bool:
     return len(required_cols - set(df.columns)) == 0
 
 
-def compute_metrics(activity_id: int, user_id: str) -> dict:
+def compute_metrics(
+    activity_id: int,
+    user_id: str,
+    health_metrics: dict | None = None,
+) -> dict:
     df = load_stream(activity_id, user_id)
 
     metrics = {
