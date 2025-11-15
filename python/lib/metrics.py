@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime
 from .io import load_stream
+from typing import Dict, Any
 
 import pandas as pd
 import numpy as np
 from scipy.signal import find_peaks
+
+from lib.heartrate_zones import HeartrateZones
 
 
 def time_weighted_avg(
@@ -118,6 +121,75 @@ def has_required_cols(df: pd.DataFrame, required_cols: set) -> bool:
     return len(required_cols - set(df.columns)) == 0
 
 
+def label_heartrate_zones(df: pd.DataFrame, health_metrics: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Label each timestamped row in the activity DataFrame with its heart-rate zone.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Must contain a 'heartrate' column with numeric HR values.
+    health_metrics : dict
+        Dict containing at least `max_heartrate`.
+
+    Returns
+    -------
+    pd.DataFrame
+        A copy of the DataFrame with a new column:
+        - 'heartrate_zone' : int in {0,1,2,3,4,5}
+          (0 = below Zone 1 threshold)
+    """
+    if "heartrate" not in df.columns:
+        raise ValueError("DataFrame must contain a 'heartrate' column.")
+
+    data = df.copy()
+
+    # Remove missing HR samples (strap dropouts etc.)
+    data = data.dropna(subset=["heartrate"])
+
+    hr_zones = HeartrateZones(health_metrics)
+    data["heartrate_zone"] = hr_zones.get_zone(data["heartrate"])
+
+    return data
+
+
+def get_time_in_heartrate_zones(df: pd.DataFrame) -> Dict[str, float]:
+    """
+    Compute total time (in seconds) spent in each HR zone.
+
+    Requires:
+    - 'heartrate_zone' column (0–5)
+    - 'dt' column = duration of each row segment in seconds
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+
+    Returns
+    -------
+    dict
+        Keys: 'zone_0_time', 'zone_1_time', ..., 'zone_5_time'
+        Values: total seconds (float)
+    """
+    # Validate presence of required columns
+    if "heartrate_zone" not in df.columns:
+        raise ValueError("DataFrame must contain 'heartrate_zone'. "
+                         "Call label_heartrate_zones() first.")
+    if "dt" not in df.columns:
+        raise ValueError("DataFrame must contain 'dt' (seconds).")
+
+    # Sum dt for each zone
+    zone_time = (
+        df.groupby("heartrate_zone")["dt"]
+          .sum()
+          .reindex(range(6), fill_value=0)
+          .to_dict()
+    )
+
+    # Output in a clean, JSON-serializable format
+    return {f"zone_{z}_time": float(seconds) for z, seconds in zone_time.items()}
+
+
 def compute_metrics(
     activity_id: int,
     user_id: str,
@@ -134,6 +206,8 @@ def compute_metrics(
         df['dt'] = df['time'].diff().fillna(0)
     if 'altitude' in df.columns:
         df = label_uphill_downhill(df)
+    if ('heartrate' in df.columns) and health_metrics and ('max_heartrate' in health_metrics):
+        df = label_heartrate_zones(df, health_metrics)
 
     # uphill / downhill heartrate
     if has_required_cols(df, {'time', 'heartrate', 'altitude'}):
@@ -143,5 +217,9 @@ def compute_metrics(
             metrics['uphill_heartrate'] = uphill_heartrate
         if not np.isnan(downhill_heartrate):
             metrics['downhill_heartrate'] = downhill_heartrate
+
+    # time in heartrate zones
+    if has_required_cols(df, {'dt', 'heartrate_zone'}):
+        metrics.update(get_time_in_heartrate_zones(df))
 
     return metrics
