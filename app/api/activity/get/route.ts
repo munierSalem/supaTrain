@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
+
+import { fetchActivityMetadata } from "@/lib/server/fetchActivityMetadata";
 import { getServerClient } from "@/lib/supabaseServer";
 import { parseActivityId } from "@/lib/parseParams";
+
 
 export async function GET(req: Request) {
   try {
@@ -20,25 +23,23 @@ export async function GET(req: Request) {
     // 2. Parse activity_id from ?id=123
     const activityId = parseActivityId(req);
 
-    // 3. Query the enriched view
-    const { data, error } = await supabase
-      .from("activities_enriched")
-      .select("*")
-      .eq("activity_id", activityId)
-      .eq("user_id", user.id)
-      .maybeSingle();
+    // 3. Use server helper (source of truth)
+    const activity = await fetchActivityMetadata(
+      supabase,
+      user.id,
+      activityId
+    );
 
-    if (error) {
-      console.error("Error fetching activity:", error);
+    if (!activity) {
       return NextResponse.json(
-        { error: "Database error" },
-        { status: 500 }
+        { error: "Activity not found" },
+        { status: 404 }
       );
     }
 
-    return NextResponse.json({ activity: data });
+    return NextResponse.json({ activity });
   } catch (err: any) {
-    console.error(err);
+    console.error("API error:", err);
     return NextResponse.json(
       { error: err.message },
       { status: 400 }
